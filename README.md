@@ -1,5 +1,6 @@
 # Ignews
-Projeto criado no curso da RocketSeat - Ignite - trilha ReactJs
+Projeto criado no curso da RocketSeat: 
+Ignite - trilha ReactJs
 
 # Stacks
 
