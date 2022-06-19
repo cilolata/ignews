@@ -12,13 +12,47 @@ export default NextAuth({
       clientSecret: process.env.GITHUB_SECRET,
       authorization: {
         params: {
-          scope: 'read:user, user:email'
+          scope: 'read:user, user.email'
         }
         },
     }),
   ],
- 
   callbacks: {
+    async session({session}) {
+    try {
+      const userActiveSubscription = await fauna.query(
+        q.Get(
+          q.Intersection([
+            q.Match(
+              q.Index('subscription_by_user_ref'),
+                q.Select(
+                  "ref",
+                  q.Get(
+                    q.Match(
+                      q.Index('user_by_email'),
+                      q.Casefold(session.user.email)
+                    )
+                  )
+                )
+              ),
+              q.Match(
+                q.Index("subscription_by_status"),
+                "active"
+              )
+            ])
+          )
+        )
+
+      return {
+        ...session,
+        activeSubscription: userActiveSubscription
+      }
+    } catch {
+      return {
+        ...session
+      }
+    }
+  },
     async signIn({ user, account, profile}) {
       const { email } = user
       try{

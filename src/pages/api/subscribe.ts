@@ -16,6 +16,7 @@ type User = {
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req:NextApiRequest, res: NextApiResponse) => {
+    try{
     if (req.method === 'POST'){
         const session = await getSession({ req })
 
@@ -48,13 +49,13 @@ export default async (req:NextApiRequest, res: NextApiResponse) => {
             customerId = stripeCustomer.id
         }
 
-        const stripCheckoutSession = await stripe.checkout.sessions.create({
+        const stripeCheckoutSession = await stripe.checkout.sessions.create({
             customer: customerId,
             payment_method_types: ['card'],
             billing_address_collection: 'required',
             line_items: [
                 {
-                    price: 'price_1KiJBRJYnqLJrZhzTPGWspXq',
+                    price: 'price_1L7jDyJYnqLJrZhzGLBcq2ya',
                     quantity: 1
                 }
             ],
@@ -63,11 +64,14 @@ export default async (req:NextApiRequest, res: NextApiResponse) => {
             success_url: process.env.STRIPE_SUCCESS_URL,
             cancel_url: process.env.STRIPE_CANCEL_URL
         })
-
-        return res.status(200).json({ sessionId: stripCheckoutSession.id })
+        
+        return res.status(200).json({ sessionId: stripeCheckoutSession.id })
     } else {
         res.setHeader('Allow', 'POST')
         res.status(405).end('Method not allowed')
         
     }
+} catch (err) {
+    console.log(err)
+}
 }
